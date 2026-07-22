@@ -1,11 +1,39 @@
 {
   "Version": 1,
-  "Hash": "nk7rbvrlCC7M4Z/8tsWwaGzldKfcWnsA+9kCbgWhWpc=",
+  "Hash": "D5gxgbmsgcdi3482CkTCL2YUeEfvf4VZFc5OZko74mw=",
   "Source": "MonitorApi",
   "BasePath": "_content/MonitorApi",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
-  "DiscoveryPatterns": [],
-  "Assets": []
+  "DiscoveryPatterns": [
+    {
+      "Name": "MonitorApi\\wwwroot",
+      "Source": "MonitorApi",
+      "ContentRoot": "C:\\Users\\User\\Documents\\teste\\Pedro Alves\\MonitorApi\\wwwroot\\",
+      "BasePath": "_content/MonitorApi",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\User\\Documents\\teste\\Pedro Alves\\MonitorApi\\wwwroot\\js\\signalr.min.js",
+      "SourceId": "MonitorApi",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\User\\Documents\\teste\\Pedro Alves\\MonitorApi\\wwwroot\\",
+      "BasePath": "_content/MonitorApi",
+      "RelativePath": "js/signalr.min.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\signalr.min.js"
+    }
+  ]
 }

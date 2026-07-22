@@ -1,18 +1,26 @@
 using MonitorApi.Data;
+using MonitorApi.Hubs;
 using MonitorApi.Json;
 using MonitorApi.Models;
+using MonitorApi.Time;
 using MonitorApi.Web;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<Database>();
 builder.Services.AddScoped<SignalsRepository>();
+builder.Services.AddSignalR();
 
 // Datas na saída da API no formato brasileiro (dd/MM/aaaa), mantendo o valor em UTC.
 builder.Services.ConfigureHttpJsonOptions(o =>
     o.SerializerOptions.Converters.Add(new BrazilianUtcDateTimeConverter()));
 
 var app = builder.Build();
+
+// Serve a página e o cliente JS do SignalR (wwwroot/js/signalr.min.js).
+app.UseStaticFiles();
+app.MapHub<SignalsHub>("/hub/signals");
 
 // Cria a tabela/índices no PostgreSQL ao iniciar (espera o banco subir, se necessário).
 await app.Services.GetRequiredService<Database>().InitializeAsync();
@@ -23,7 +31,9 @@ var apiKey = app.Configuration["Api:Key"];
 app.MapGet("/", () => Results.Content(HomePage.Html, "text/html; charset=utf-8"));
 
 // ---------- Passo 2: Ingestão (o agente chama) ----------
-app.MapPost("/api/signals", async (SignalInput input, HttpRequest req, SignalsRepository repo, CancellationToken ct) =>
+app.MapPost("/api/signals", async (
+    SignalInput input, HttpRequest req, SignalsRepository repo,
+    IHubContext<SignalsHub> hub, CancellationToken ct) =>
 {
     if (!string.IsNullOrEmpty(apiKey) && req.Headers["X-Api-Key"] != apiKey)
         return Results.Unauthorized();
@@ -32,6 +42,18 @@ app.MapPost("/api/signals", async (SignalInput input, HttpRequest req, SignalsRe
         return Results.BadRequest("hostname e usuario são obrigatórios.");
 
     long id = await repo.InsertAsync(input, ct);
+
+    // Tempo real: avisa os dashboards conectados que chegou um sinal novo.
+    await hub.Clients.All.SendAsync("novoSinal", new
+    {
+        id,
+        hostname = input.Hostname,
+        usuario = input.Usuario,
+        timestampLocal = BrazilTime.Format(input.TimestampUtc.UtcDateTime),
+        processo = input.Processo,
+        tituloJanela = input.TituloJanela,
+    }, ct);
+
     return Results.Created($"/api/signals/{id}", new { id });
 });
 

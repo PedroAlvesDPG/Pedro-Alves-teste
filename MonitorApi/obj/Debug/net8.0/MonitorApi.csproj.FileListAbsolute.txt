@@ -27,3 +27,4 @@ C:\Users\User\Documents\teste\Pedro Alves\MonitorApi\obj\Debug\net8.0\refint\Mon
 C:\Users\User\Documents\teste\Pedro Alves\MonitorApi\obj\Debug\net8.0\MonitorApi.pdb
 C:\Users\User\Documents\teste\Pedro Alves\MonitorApi\obj\Debug\net8.0\MonitorApi.genruntimeconfig.cache
 C:\Users\User\Documents\teste\Pedro Alves\MonitorApi\obj\Debug\net8.0\ref\MonitorApi.dll
+C:\Users\User\Documents\teste\Pedro Alves\MonitorApi\bin\Debug\net8.0\MonitorApi.staticwebassets.runtime.json

@@ -61,6 +61,7 @@ public static class HomePage
                 <option value="100" selected>100</option>
                 <option value="250">250</option>
               </select>
+              <span id="rt-status" class="muted">● conectando…</span>
             </div>
             <table id="s-table"><thead><tr>
               <th>Hora (Brasília)</th><th>Máquina</th><th>Usuário</th><th>Processo</th><th>Janela</th>
@@ -93,6 +94,7 @@ public static class HomePage
 
           <p class="muted">Cada amostra ≈ 3 segundos em foco (20 amostras ≈ 1 minuto).</p>
 
+        <script src="/js/signalr.min.js"></script>
         <script>
           const $ = (s) => document.querySelector(s);
           const esc = (v) => String(v ?? "").replace(/[&<>"']/g, c =>
@@ -120,18 +122,23 @@ public static class HomePage
             }
           }
 
-          async function loadSignals() {
-            const limit = $("#s-limit").value;
-            const rows = await getJson("/api/signals?limit=" + limit, $("#s-status"));
-            const tb = $("#s-table tbody");
-            if (!rows) { tb.innerHTML = ""; return; }
-            tb.innerHTML = rows.map(x => `<tr>
+          // Monta a linha de um sinal (reutilizada na carga inicial e no tempo real).
+          function signalRow(x) {
+            return `<tr>
               <td>${esc(stripBr(x.timestampLocal))}</td>
               <td>${esc(x.hostname)}</td>
               <td>${esc(x.usuario)}</td>
               <td>${esc(x.processo)}</td>
               <td class="title" title="${esc(x.tituloJanela)}">${esc(x.tituloJanela)}</td>
-            </tr>`).join("");
+            </tr>`;
+          }
+
+          async function loadSignals() {
+            const limit = $("#s-limit").value;
+            const rows = await getJson("/api/signals?limit=" + limit, $("#s-status"));
+            const tb = $("#s-table tbody");
+            if (!rows) { tb.innerHTML = ""; return; }
+            tb.innerHTML = rows.map(signalRow).join("");
           }
 
           async function loadProcess(minutes) {
@@ -179,6 +186,27 @@ public static class HomePage
             if (e.target.checked) autoTimer = setInterval(refreshAll, 10000);
             else clearInterval(autoTimer);
           });
+
+          // ----- Tempo real (SignalR): novas linhas aparecem sem precisar atualizar -----
+          const rt = $("#rt-status");
+          const conn = new signalR.HubConnectionBuilder()
+            .withUrl("/hub/signals")
+            .withAutomaticReconnect()
+            .build();
+
+          conn.on("novoSinal", (s) => {
+            const tb = $("#s-table tbody");
+            tb.insertAdjacentHTML("afterbegin", signalRow(s));   // insere no topo
+            const max = parseInt($("#s-limit").value, 10);
+            while (tb.rows.length > max) tb.deleteRow(tb.rows.length - 1); // mantém o tamanho
+          });
+
+          conn.onreconnecting(() => { rt.textContent = "● reconectando…"; });
+          conn.onreconnected(() => { rt.textContent = "● tempo real ligado"; });
+          conn.onclose(() => { rt.textContent = "● desconectado"; });
+          conn.start()
+            .then(() => { rt.textContent = "● tempo real ligado"; })
+            .catch(() => { rt.textContent = "● tempo real indisponível"; });
 
           refreshAll();
         </script>
