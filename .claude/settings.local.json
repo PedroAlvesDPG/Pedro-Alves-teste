@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(dotnet --version)",
+      "PowerShell(docker --version 2>&1)",
+      "PowerShell(docker compose version 2>&1)"
+    ]
+  }
+}
