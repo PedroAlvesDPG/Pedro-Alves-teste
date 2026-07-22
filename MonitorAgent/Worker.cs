@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Options;
 using MonitorAgent.Api;
 using MonitorAgent.Models;
-using MonitorAgent.Native;
 using MonitorAgent.Storage;
 
 namespace MonitorAgent;
@@ -16,16 +15,15 @@ public sealed class Worker : BackgroundService
     private readonly ILogger<Worker> _logger;
     private readonly ApiClient _api;
     private readonly LocalStore _store;
+    private readonly SignalFactory _signals;
     private readonly AgentOptions _options;
 
-    private readonly string _hostname = Environment.MachineName;
-    private readonly string _userName = Environment.UserName;
-
-    public Worker(ILogger<Worker> logger, ApiClient api, LocalStore store, IOptions<AgentOptions> options)
+    public Worker(ILogger<Worker> logger, ApiClient api, LocalStore store, SignalFactory signals, IOptions<AgentOptions> options)
     {
         _logger = logger;
         _api = api;
         _store = store;
+        _signals = signals;
         _options = options.Value;
     }
 
@@ -33,8 +31,8 @@ public sealed class Worker : BackgroundService
     {
         _store.Initialize();
         _logger.LogInformation(
-            "Agente iniciado. Host={Host} Usuário={User} Intervalo={Interval}s API={Api}{Path}",
-            _hostname, _userName, _options.SampleIntervalSeconds, _options.ApiBaseUrl, _options.SignalsPath);
+            "Agente iniciado. Intervalo={Interval}s API={Api}{Path}",
+            _options.SampleIntervalSeconds, _options.ApiBaseUrl, _options.SignalsPath);
 
         var interval = TimeSpan.FromSeconds(Math.Max(1, _options.SampleIntervalSeconds));
         using var timer = new PeriodicTimer(interval);
@@ -58,7 +56,7 @@ public sealed class Worker : BackgroundService
 
     private async Task CollectAndSendAsync(CancellationToken ct)
     {
-        var signal = CaptureSignal();
+        var signal = _signals.Create();
 
         bool delivered = await _api.SendAsync(signal, ct);
         if (delivered)
@@ -73,21 +71,6 @@ public sealed class Worker : BackgroundService
             _store.Enqueue(signal);
             _logger.LogDebug("Sinal enfileirado (API offline). Pendentes={Count}", _store.PendingCount());
         }
-    }
-
-    /// <summary>Coleta o sinal atual: host, usuário, timestamp UTC e janela em foco.</summary>
-    private Signal CaptureSignal()
-    {
-        var info = Win32.GetForegroundInfo();
-        return new Signal
-        {
-            Hostname = _hostname,
-            Usuario = _userName,
-            // Timestamp sempre em UTC (corrigido do fuso local), formato ISO 8601.
-            TimestampUtc = DateTimeOffset.UtcNow,
-            TituloJanela = info?.WindowTitle ?? string.Empty,
-            Processo = info?.ProcessName ?? string.Empty,
-        };
     }
 
     /// <summary>Reenvia sinais pendentes em lotes, enquanto a API continuar aceitando.</summary>

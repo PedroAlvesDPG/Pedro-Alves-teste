@@ -43,9 +43,35 @@ public sealed class Database
                 processo      TEXT        NOT NULL,
                 received_at   TIMESTAMPTZ NOT NULL DEFAULT now()
             );
-            CREATE INDEX IF NOT EXISTS ix_signals_ts   ON signals (timestamp_utc);
-            CREATE INDEX IF NOT EXISTS ix_signals_host ON signals (hostname);
-            CREATE INDEX IF NOT EXISTS ix_signals_proc ON signals (processo);
+            -- Índices compostos pensados para as queries reais (não colunas soltas).
+            -- Remove os índices single-column antigos, redundantes com os compostos abaixo.
+            DROP INDEX IF EXISTS ix_signals_ts;
+            DROP INDEX IF EXISTS ix_signals_host;
+            DROP INDEX IF EXISTS ix_signals_proc;
+
+            -- Relatório "process-counts": filtra por janela de tempo e agrupa por processo.
+            CREATE INDEX IF NOT EXISTS ix_signals_ts_proc ON signals (timestamp_utc, processo);
+
+            -- Relatório "samples-by-machine-hour": filtra por tempo e agrupa por máquina/hora.
+            CREATE INDEX IF NOT EXISTS ix_signals_ts_host ON signals (timestamp_utc, hostname);
+
+            -- Leitura "/api/signals?hostname=...": filtra por máquina e ordena por tempo desc.
+            CREATE INDEX IF NOT EXISTS ix_signals_host_ts ON signals (hostname, timestamp_utc DESC);
+
+            -- View de leitura: mostra o MESMO dado com colunas extras em horário de Brasília.
+            -- A tabela 'signals' continua 100% em UTC; a view só facilita a navegação (ex.: no Adminer).
+            CREATE OR REPLACE VIEW signals_local AS
+            SELECT
+                id,
+                hostname,
+                usuario,
+                timestamp_utc,
+                (timestamp_utc AT TIME ZONE 'America/Sao_Paulo') AS timestamp_brasilia,
+                titulo_janela,
+                processo,
+                received_at,
+                (received_at   AT TIME ZONE 'America/Sao_Paulo') AS received_at_brasilia
+            FROM signals;
             """;
 
         const int maxAttempts = 10;

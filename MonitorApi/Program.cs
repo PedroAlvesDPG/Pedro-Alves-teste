@@ -1,6 +1,7 @@
 using MonitorApi.Data;
 using MonitorApi.Json;
 using MonitorApi.Models;
+using MonitorApi.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,7 @@ await app.Services.GetRequiredService<Database>().InitializeAsync();
 // Chave de API opcional: se configurada (Api:Key), a ingestão exige o header X-Api-Key.
 var apiKey = app.Configuration["Api:Key"];
 
-app.MapGet("/", () => "MonitorApi online. Endpoints: POST /api/signals | GET /api/signals | GET /api/reports/*");
+app.MapGet("/", () => Results.Content(HomePage.Html, "text/html; charset=utf-8"));
 
 // ---------- Passo 2: Ingestão (o agente chama) ----------
 app.MapPost("/api/signals", async (SignalInput input, HttpRequest req, SignalsRepository repo, CancellationToken ct) =>

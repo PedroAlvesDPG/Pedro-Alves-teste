@@ -1,76 +1,109 @@
-
 # Agente Monitor (Teste)
 
-Teste prático para a vaga de Desenvolvedor Fullstack. O foco do teste é criar um mini-agente, o qual tem o dever de monitorar as ações do usuário na máquina.
+Teste prático para a vaga de Desenvolvedor Full Stack.
 
+O objetivo deste projeto é desenvolver um miniagente responsável por monitorar as ações realizadas pelo usuário na máquina e disponibilizar essas informações para visualização.
 
+---
 
+# Instalação
 
-## Instalação
+## Requisitos
 
-Como instalar e usar o agente
+- Docker
+- Visual Studio Code
+- .NET 8.0 ou superior
+- Navegador de sua preferência
 
-### Requisitos:
-```bash
- Docker 
- Visual Studio Code 
- Dotnet 8.0+  
- Navegador (de sua preferência)
-```
-Baixe o repositorio local (Imagem abaixo):
-Clique em code -> Https -> Clice em copiar
+## 1. Clonar o repositório
 
-Na área de trabalho, clique com o botão direito do mouse e selecione Open Git Bash here. Execute o seguinte comando:
+Baixe o repositório para sua máquina (imagem abaixo).
+
+No GitHub:
+
+1. Clique em **Code**.
+2. Selecione **HTTPS**.
+3. Clique no ícone de copiar.
+
+Em seguida, na Área de Trabalho, clique com o botão direito do mouse e selecione **Open Git Bash here**.
+
+Execute o comando abaixo:
+
 ```bash
 git clone https://github.com/PedroAlvesDPG/Pedro-Alves-teste.git
 ```
 
+Após concluir o download, feche o Git Bash.
 
-Apos esse processo, feche o git bash. Clique com o botão direito na pasta Pedro-Alves-teste na área de trabalho, selecione Abrir com Code. (Imagem abaixo)
+Na pasta **Pedro-Alves-teste**, clique com o botão direito e selecione **Abrir com Code** (imagem abaixo).
 
-Com o VS Code aberto, clique em Terminal -> Novo Terminal
+---
 
-Execute o seguinte comando:
-docker compose up -d
+## 2. Iniciar o banco de dados
 
-O banco de dados já está no ar agora.
+Com o Visual Studio Code aberto:
 
-### Comandos utils do Docker:
+1. Abra um terminal em **Terminal → Novo Terminal**.
+2. Execute o comando:
+
 ```bash
-docker compose up -d. para iniciar pela primeira vez
-docker compose up. para iniciar
-docker compose ps. mostra o status. 
-docker compose down. para parar (mantém dados)
-docker compose down -v. para apagar os dados.
+docker compose up -d
 ```
 
-Para iniciarmos o agente, faltam dois passos. Abra um novo terminal e execute o comando:
+Após a execução, o banco de dados estará disponível.
+
+### Comandos úteis do Docker
+
+```bash
+docker compose up -d    # Inicia os containers em segundo plano.
+docker compose up       # Inicia os containers exibindo os logs.
+docker compose ps       # Exibe o status dos containers.
+docker compose down     # Para os containers, mantendo os dados.
+docker compose down -v  # Para os containers e remove todos os dados.
+```
+
+---
+
+## 3. Iniciar a API
+
+Abra um novo terminal e execute:
+
 ```bash
 cd MonitorApi
 dotnet run
 ```
 
-Após isso, abra um novo terminal e execute o comando:
+---
+
+## 4. Iniciar o Agente
+
+Abra outro terminal e execute:
+
 ```bash
 cd MonitorAgent
 dotnet run
 ```
-O agente agora está rodando e monitorando todas as ações no dispositivo.
 
-## Como usar
+Após esses passos, o agente estará em execução e começará a monitorar as ações realizadas no dispositivo.
 
-Para visualizar os dados gerados, acesse no seu navegador: 
-```bash
+---
+
+# Como usar
+
+Para visualizar os dados coletados, acesse o endereço abaixo no navegador:
+
+```text
 http://localhost:8080
 ```
 
-### O Login:
+## Login
 
+Utilize as seguintes credenciais:
 
-| Campo             | Insira                                                             |
-| ----------------- | ------------------------------------------------------------------ |
+| Campo | Valor |
+|-------|-------|
 | Sistema | PostgreSQL |
 | Servidor | postgres |
 | Usuário | monitor |
 | Senha | monitor |
-| Base | monitor |
+| Base de dados | monitor |
