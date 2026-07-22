@@ -25,7 +25,7 @@ No GitHub:
 2. Selecione **HTTPS**.
 3. Clique no ícone de copiar.
 
-Em seguida, na Área de Trabalho, clique com o botão direito do mouse e selecione **Open Git Bash here**.
+Em seguida, na Área de Trabalho, clique com o botão direito do mouse e selecione **Open Git Bash Here**.
 
 Execute o comando abaixo:
 
@@ -35,7 +35,7 @@ git clone https://github.com/PedroAlvesDPG/Pedro-Alves-teste.git
 
 Após concluir o download, feche o Git Bash.
 
-Na pasta **Pedro-Alves-teste**, clique com o botão direito e selecione **Abrir com Code** (imagem abaixo).
+Na pasta **Pedro-Alves-teste**, clique com o botão direito do mouse e selecione **Abrir com Code** (imagem abaixo).
 
 ---
 
@@ -93,17 +93,12 @@ Após esses passos, o agente estará em execução e começará a monitorar as a
 Para visualizar os dados coletados, acesse o endereço abaixo no navegador:
 
 ```text
-http://localhost:8080
+http://localhost:5000
 ```
 
-## Login
+Na seção **Últimos sinais**, são exibidos os registros mais recentes capturados pelo sistema, com informações detalhadas sobre cada evento.
 
-Utilize as seguintes credenciais:
+Além disso, existem duas seções de **Relatórios**:
 
-| Campo | Valor |
-|-------|-------|
-| Sistema | PostgreSQL |
-| Servidor | postgres |
-| Usuário | monitor |
-| Senha | monitor |
-| Base de dados | monitor |
+- **Relatório por período:** exibe os processos registrados dentro de um intervalo de tempo.
+- **Relatório por máquina:** exibe os processos agrupados por máquina.
