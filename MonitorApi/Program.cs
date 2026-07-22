@@ -1,10 +1,15 @@
 using MonitorApi.Data;
+using MonitorApi.Json;
 using MonitorApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<Database>();
 builder.Services.AddScoped<SignalsRepository>();
+
+// Datas na saída da API no formato brasileiro (dd/MM/aaaa), mantendo o valor em UTC.
+builder.Services.ConfigureHttpJsonOptions(o =>
+    o.SerializerOptions.Converters.Add(new BrazilianUtcDateTimeConverter()));
 
 var app = builder.Build();
 
